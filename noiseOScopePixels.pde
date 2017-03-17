@@ -71,10 +71,11 @@ void draw() {
           b = lerp( minB , maxB , (b-transStart-transWidth)/(1-transStart-transWidth) );
         }
         //println(pg.pixels.length);
-        pixels[x+y*width] = color( h , s , b );
-        pixels[(x)+(height-1-y)*width] = color( h , s , b );
-        pixels[(width-1-x)+(y)*width] = color( h , s , b );
-        pixels[(width-1-x)+(height-1-y)*width] = color( h , s , b );
+        color c = lerpColor( pixels[x+y*width] , color(h,s,b) , alpha );
+        pixels[x+y*width] = c;
+        pixels[(x)+(height-1-y)*width] = c;
+        pixels[(width-1-x)+(y)*width] = c;
+        pixels[(width-1-x)+(height-1-y)*width] = c;
         //pg.pixels[x+(-y+height/2)*width] = color( h , s , b , alpha );
       }
     }
