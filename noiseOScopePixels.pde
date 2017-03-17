@@ -1,28 +1,27 @@
 float centerH = 0.2;
 float widthH = 0.75;
 
-float minH = 0.5;
-float maxH = 0.9;
-float minS = 0.55;
+
+float minS = 0.05;
 float maxS = 0.99;
 float minB = 1.0;
-float maxB = 0.25;
-float alpha = 0.03;
+float maxB = 0.35;
+float alpha = 0.035;
 float transStart = 0.4;
-float transWidth = 0.05;
+float transWidth = 0.02;
 
 float ah = 0.020;
 float as = 0.015;
-float ab = 0.02;
+float ab = 0.03;
 float ag =1;
 
 float bp = 2;
-float th = 0.50;
-float ts = 0.50;
-float tb = 0.017;
+float th = 0.15;
+float ts = 0.15;
+float tb = 0.02;
 float tA = 0.2;
 
-int N = 6;
+int N = 8;
 float ang;
 float slope;
 float w = 1;
@@ -35,7 +34,7 @@ float xRes = 800;
 float yRes = 480;
 void setup() {
   size( 800 , 480 );
-  colorMode( HSB , 1 , 1 , 1 , 1 );
+  //colorMode( HSB , 1 , 1 , 1 , 1 );
   pg = createGraphics( 800 , 480 );
   
   pg.beginDraw();
@@ -91,7 +90,7 @@ void draw() {
           b = lerp( minB , maxB , (b-transStart-transWidth)/(1-transStart-transWidth) );
         }
         //println(pg.pixels.length);
-        color c = lerpColor( pixels[x+y*width] , color(h,s,b) , alpha );
+        color c = lerpColor( pixels[x+y*width] , hsbColor(h*360,s,b) , alpha );
         pixels[x+y*width] = c;
         pixels[(x)+(height-1-y)*width] = c;
         pixels[(width-1-x)+(y)*width] = c;
@@ -116,3 +115,31 @@ void mouseDragged() {
   ah = lerp( 0.02 , 0.09 , mouseY / yRes );
 }
 */
+
+color hsbColor( float h , float s , float b ) {
+  float c = b*s;
+  float x = c*( 1 - abs( (h/60) % 2 - 1 ) );
+  float m = b - c;
+  float rp = 0;
+  float gp = 0;
+  float bp = 0;
+  if( 0 <= h && h < 60 ) {
+    rp = c;  gp = x ; bp = 0;
+  }
+  if( 60 <= h && h < 120 ) {
+    rp = x;  gp = c ; bp = 0;
+  }
+  if( 120 <= h && h < 180 ) {
+    rp = 0;  gp = c ; bp = x;
+  }
+  if( 180 <= h && h < 240 ) {
+    rp = 0;  gp = x ; bp = c;
+  }
+  if( 240 <= h && h < 300 ) {
+    rp = x;  gp = 0 ; bp = c;
+  }
+  if( 300 <= h && h < 360 ) {
+    rp = c;  gp = 0 ; bp = x;
+  }
+  return color( (rp+m)*255 , (gp+m)*255 , (bp+m)*255 );
+}
