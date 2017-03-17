@@ -24,6 +24,7 @@ float tA = 0.4;
 
 int N = 12;
 float ang;
+int w = 1;
 
 float[] x1;
 float[] y1;
@@ -62,8 +63,8 @@ void draw() {
   float t = tA*float(frameCount);
 
   loadPixels();
-  for ( int x = 0; x < width/2; x++ ) {
-    for ( int y = 0; y < height/2; y++ ) {
+  for ( int x = 0; x < width/2; x+=w ) {
+    for ( int y = 0; y < height/2; y+=w ) {
       if ( true ) {
         float x2 = x1[x+y*width];
         float y2 = y1[x+y*width];
@@ -80,11 +81,15 @@ void draw() {
         } else {
           c = lerpColor( pixels[x+y*width], color(0, 0, 0), alpha );
         }
-
-        pixels[x+y*width] = c;
-        pixels[(x)+(height-1-y)*width] = c;
-        pixels[(width-1-x)+(y)*width] = c;
-        pixels[(width-1-x)+(height-1-y)*width] = c;
+        
+        for( int i = 0 ; i < w ; i++ ) {
+          for( int j = 0 ; j < w ; j++ ) {
+            pixels[(x+i)+(y+j)*width] = c;
+            pixels[(x+i)+(height-1-(y+j))*width] = c;
+            pixels[(width-1-(x+i))+(y+j)*width] = c;
+            pixels[(width-1-(x+i))+(height-1-(y+j))*width] = c;
+          }
+        }
       }
     }
   }
