@@ -27,6 +27,9 @@ float ang;
 float slope;
 float w = 1;
 
+float[] x1;
+float[] y1;
+
 PGraphics pg;
 float xRes = 800;
 float yRes = 480;
@@ -45,6 +48,21 @@ void setup() {
   slope = tan( 0.5*ang );
   println( ang );
   centerH = random(0,1);
+  
+  x1 = new float[width*height];
+  y1 = new float[width*height];
+  for( int x = 0 ; x < width ; x++ ) {
+    for( int y = 0 ; y < height ; y++ ) {
+      float x2 = float(x) - 0.5*xRes;
+      float y2 = float(y) - 0.5*yRes;
+      PVector v = new PVector( x2 , y2 );
+      float a = (v.heading() + PI)%ang;
+      if( a > 0.5*ang ) { a = ang - a; }
+      float r = v.mag();
+      x1[x+y*width] = r*cos(a);
+      y1[x+y*width] = r*sin(a);
+    }
+  }
 }
 
 void draw() {
@@ -56,13 +74,15 @@ void draw() {
   for( int x = 0 ; x < width/2 ; x++ ) {
     for( int y = 0 ; y < height/2 ; y++ ) {
       if( true ) {
-        float ang = noise( ah*(0*xRes + x) , ah*y , th*t );
+        float x2 = x1[x+y*width];
+        float y2 = y1[x+y*width];
+        float ang = noise( ah*(0*xRes + x2) , ah*y2 , th*t );
         //float a = 0.5 - 0.5*cos(TWO_PI*ang);
         float a = ang;
         float h = (frameCount*0.001 + centerH + widthH*a )%1;
-        float s = lerp( minS , maxS , noise( as*(10*xRes + x) , as*(10*yRes +y) , ts*t ) );
+        float s = lerp( minS , maxS , noise( as*(10*xRes + x2) , as*(10*yRes +y2) , ts*t ) );
         s = -pow( -(s-1) , 1 ) +1;
-        float b = noise( ab*(20*xRes + x) , ab*(20*yRes+y) , tb*t );
+        float b = noise( ab*(20*xRes + x2) , ab*(20*yRes+y2) , tb*t );
         if( b < transStart ) {
           b = 0;
         } else if( b < transStart+transWidth ) {
