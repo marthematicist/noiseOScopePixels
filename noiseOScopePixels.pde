@@ -22,75 +22,90 @@ float tf = 0.005;
 float tc = 0.003;
 float tA = 0.4;
 
-int N = 12;
+int numSpokes = 12;
 float ang;
 int w = 1;
 
-float[] x1;
-float[] y1;
+float[] px;
+float[] py;
 
-float xRes = 800;
-float yRes = 480;
+color[] P;
+
+float xRes;
+float yRes;
 void setup() {
   size( 800 , 480 );
+  xRes = float(width);
+  yRes = float(height);
   centerH = random(0, 1);
-
-
   noStroke();
   background(0);
-  ang = 2*PI/float(N);
+  ang = 2*PI/float(numSpokes);
   println( ang );
 
-  x1 = new float[width*height];
-  y1 = new float[width*height];
-  for ( int x = 0; x < width; x++ ) {
-    for ( int y = 0; y < height; y++ ) {
-      float x2 = float(x) - 0.5*xRes;
-      float y2 = float(y) - 0.5*yRes;
+  
+  P = new color[(width/2)*(height/2)];
+  for ( int x = 0; x < width/2; x++ ) {
+    for ( int y = 0; y < height/2; y++ ) {
+      P[x+y*width/2] = color(0,0,0);
+    }
+  }
+  
+  px = new float[(width/2)*(height/2)];
+  py = new float[(width/2)*(height/2)];
+  for ( int x = 0; x < width/2; x++ ) {
+    for ( int y = 0; y < height/2; y++ ) {
+      float x2 = float(x) + 0.5;
+      float y2 = float(y) + 0.5;
       PVector v = new PVector( x2, y2 );
       float a = (v.heading() + PI)%ang;
       if ( a > 0.5*ang ) { 
         a = ang - a;
       }
       float r = v.mag();
-      x1[x+y*width] = r*cos(a);
-      y1[x+y*width] = r*sin(a);
+      px[x+y*width/2] = r*cos(a);
+      py[x+y*width/2] = r*sin(a);
     }
   }
 }
 
 void draw() {
   float t = tA*float(frameCount);
-
   loadPixels();
-  for ( int x = 0; x < width/2; x+=w ) {
-    for ( int y = 0; y < height/2; y+=w ) {
-      if ( true ) {
-        float x2 = x1[x+y*width];
-        float y2 = y1[x+y*width];
+  for ( int x = 0; x < width/2; x++ ) {
+    for ( int y = 0; y<=x && y<height/2; y++ ) {
+      float x2 = px[x+y*width/2];
+      float y2 = py[x+y*width/2];
 
-        float f = noise( ag*af*(30*xRes + x2), ag*af*(30*yRes + y2), tf*t ) ;
-        color c;
-        if ( f > transStart && f < transStart+transWidth ) {
-          c = lerpColor( pixels[x+y*width], color(255, 255, 255), alpha );
-        } else if ( f >= transStart+transWidth ) {
-          float h = (frameCount*tc*tA + centerH + widthH*noise( ag*ah*(0*xRes + x2), ag*ah*y2, th*t ) )%1;
-          float s = lerp( minS, maxS, noise( ag*as*(10*xRes + x2), ag*as*(10*yRes + y2), ts*t ) );
-          float b = lerp( minB, maxB, noise( ag*ab*(20*xRes + x2), ag*ab*(20*yRes + y2), tb*t ) );
-          c = lerpColor( pixels[x+y*width], hsbColor(h*360, s, b), alpha );
-        } else {
-          c = lerpColor( pixels[x+y*width], color(0, 0, 0), alpha );
-        }
-        
-        for( int i = 0 ; i < w ; i++ ) {
-          for( int j = 0 ; j < w ; j++ ) {
-            pixels[(x+i)+(y+j)*width] = c;
-            pixels[(x+i)+(height-1-(y+j))*width] = c;
-            pixels[(width-1-(x+i))+(y+j)*width] = c;
-            pixels[(width-1-(x+i))+(height-1-(y+j))*width] = c;
-          }
-        }
+      float f = noise( ag*af*(30*xRes + x2), ag*af*(30*yRes + y2), tf*t ) ;
+      color c;
+      if ( f > transStart && f < transStart+transWidth ) {
+        c = lerpColor( P[x+y*width/2], color(255, 255, 255), alpha );
+      } else if ( f >= transStart+transWidth ) {
+        float h = (frameCount*tc*tA + centerH + widthH*noise( ag*ah*(0*xRes + x2), ag*ah*y2, th*t ) )%1;
+        float s = lerp( minS, maxS, noise( ag*as*(10*xRes + x2), ag*as*(10*yRes + y2), ts*t ) );
+        float b = lerp( minB, maxB, noise( ag*ab*(20*xRes + x2), ag*ab*(20*yRes + y2), tb*t ) );
+        c = lerpColor( P[x+y*width/2], hsbColor(h*360, s, b), alpha );
+      } else {
+        c = lerpColor( P[x+y*width/2], color(0, 0, 0), alpha );
       }
+      P[x+y*width/2] = c;
+      pixels[ (width/2+x) + (height/2+y)*width ] = c;
+      pixels[ (width/2+x) + (height/2-y)*width ] = c;
+      pixels[ (width/2-x) + (height/2+y)*width ] = c;
+      pixels[ (width/2-x) + (height/2-y)*width ] = c;
+      if( x < height/2 ) {
+        pixels[ (width/2+y) + (height/2+x)*width ] = c;
+        pixels[ (width/2+y) + (height/2-x)*width ] = c;
+        pixels[ (width/2-y) + (height/2+x)*width ] = c;
+        pixels[ (width/2-y) + (height/2-x)*width ] = c;
+      }
+    }
+  }
+  
+  for( int x = 0 ; x < width/2 ; x++ ) {
+    for( int y = 0 ; y <= x ; y++ ) {
+      
     }
   }
   updatePixels();
@@ -98,6 +113,8 @@ void draw() {
 
   println(frameRate);
 }
+
+
 
 void mouseMoved() {
 }
