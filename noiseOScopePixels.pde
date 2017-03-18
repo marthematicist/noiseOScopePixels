@@ -6,8 +6,10 @@ float maxS = 1.0;
 float minB = 0.3;
 float maxB = 1.0;
 float alpha = 0.03;
-float transStart = 0.45;
-float transWidth = 0.02;
+float transStart = 0.35;
+float transWidth = 0.01;
+float transStart2 = 0.45;
+float transWidth2 = 0.01;
 
 float ah = 0.005;
 float as = 0.055;
@@ -72,6 +74,8 @@ void setup() {
 void draw() {
   float t = tA*float(frameCount);
   loadPixels();
+  float transEnd = transStart + transWidth;
+  float transEnd2 = transStart2 + transWidth2;
   for ( int x = 0; x < width/2; x++ ) {
     for ( int y = 0; y<=x && y<height/2; y++ ) {
       float x2 = px[x+y*width/2];
@@ -79,13 +83,14 @@ void draw() {
 
       float f = noise( ag*af*(30*xRes + x2), ag*af*(30*yRes + y2), tf*t ) ;
       color c;
-      if ( f > transStart && f < transStart+transWidth ) {
+      if ( f > transStart && f < transEnd || f > transStart2 && f < transEnd2 ) {
         c = lerpColor( P[x+y*width/2], color(255, 255, 255), alpha );
-      } else if ( f >= transStart+transWidth ) {
+      } else if ( f >= transStart+transWidth && f < transStart2 ) {
         float h = (frameCount*tc*tA + centerH + widthH*noise( ag*ah*(0*xRes + x2), ag*ah*y2, th*t ) )%1;
-        float s = lerp( minS, maxS, noise( ag*as*(10*xRes + x2), ag*as*(10*yRes + y2), ts*t ) );
-        float b = lerp( minB, maxB, noise( ag*ab*(20*xRes + x2), ag*ab*(20*yRes + y2), tb*t ) );
-        c = lerpColor( P[x+y*width/2], hsbColor(h*360, s, b), alpha );
+        //float s = lerp( minS, maxS, noise( ag*as*(10*xRes + x2), ag*as*(10*yRes + y2), ts*t ) );
+        //float b = lerp( minB, maxB, noise( ag*ab*(20*xRes + x2), ag*ab*(20*yRes + y2), tb*t ) );
+        float b = lerp( minB , maxB , (f-transEnd)/(1-transEnd));
+        c = lerpColor( P[x+y*width/2], hsbColor(h*360, 1, b), alpha );
       } else {
         c = lerpColor( P[x+y*width/2], color(0, 0, 0), alpha );
       }
